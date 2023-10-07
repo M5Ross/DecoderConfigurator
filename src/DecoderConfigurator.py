@@ -515,7 +515,8 @@ class MainFrame(wx.Frame):
             self.cv28mask = RRpanelList.CV_28_INV_DIR | \
                             RRpanelList.CV_28_SAVE_POS | \
                             RRpanelList.CV_28_EN_USB_LN | \
-                            RRpanelList.CV_28_EN_MULTI_ADR
+                            RRpanelList.CV_28_EN_MULTI_ADR | \
+                            RRpanelList.CV_28_EN_DCC_LN
         elif self.devsel == self.dev.Device_LoconetFeedback8Led:
             self.panels = self.maxLNCV
             self.devtype = self.dev.Type_Loconet
@@ -749,8 +750,8 @@ class MainFrame(wx.Frame):
         # First we create and fill the info object
         info = wx.adv.AboutDialogInfo()
         info.Name = "DecoderConfigurator\n"
-        info.Version = "1.6"
-        info.Copyright = "(c) 2019-2020 M.Ross"
+        info.Version = "1.7"
+        info.Copyright = "(c) 2019-2023 M.Ross"
 
         info.Description = wordwrap(
             "\nA simple tool for configure ad upgrade software "

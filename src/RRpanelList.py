@@ -10,6 +10,7 @@ CV_28_EN_TASTER = 4
 CV_28_PULSE = 8
 CV_28_EN_USB_LN = 16
 CV_28_EN_MULTI_ADR = 32
+CV_28_EN_DCC_LN = 64
 
 
 def serialerrormessage(parent=None, message=None, close=False):
@@ -219,12 +220,14 @@ class CV28Panel(wx.Panel):
         self.cb4 = wx.CheckBox(self, -1, "Pulse")  # , (65, 60), (150, 20), wx.NO_BORDER)
         self.cb5 = wx.CheckBox(self, -1, "LN-USB")  # , (65, 60), (150, 20), wx.NO_BORDER)
         self.cb6 = wx.CheckBox(self, -1, "MultiAdr")  # , (65, 60), (150, 20), wx.NO_BORDER)
+        self.cb7 = wx.CheckBox(self, -1, "DCC-LN")  # , (65, 60), (150, 20), wx.NO_BORDER)
         self.cb1.SetValue(False)
         self.cb2.SetValue(False)
         self.cb3.SetValue(False)
         self.cb4.SetValue(False)
         self.cb5.SetValue(False)
         self.cb6.SetValue(False)
+        self.cb7.SetValue(False)
 
         self.config = 0
         if self.cb1.GetValue() & CV_28_INV_DIR:
@@ -239,6 +242,8 @@ class CV28Panel(wx.Panel):
             self.config += CV_28_EN_USB_LN
         if self.cb6.GetValue() & CV_28_EN_MULTI_ADR:
             self.config += CV_28_EN_MULTI_ADR
+        if self.cb7.GetValue() & CV_28_EN_DCC_LN:
+            self.config += CV_28_EN_DCC_LN
 
         self.Bind(wx.EVT_CHECKBOX, self.checkBoxINV, self.cb1)
         self.Bind(wx.EVT_CHECKBOX, self.checkBoxSAVE, self.cb2)
@@ -246,12 +251,14 @@ class CV28Panel(wx.Panel):
         self.Bind(wx.EVT_CHECKBOX, self.checkBoxPULSE, self.cb4)
         self.Bind(wx.EVT_CHECKBOX, self.checkBoxUSBLN, self.cb5)
         self.Bind(wx.EVT_CHECKBOX, self.checkBoxMULTIADR, self.cb6)
+        self.Bind(wx.EVT_CHECKBOX, self.checkBoxDCCLN, self.cb7)
         sizer_1.Add(self.cb1, 0, wx.ALIGN_CENTRE | wx.LEFT, 5)
         sizer_1.Add(self.cb2, 0, wx.ALIGN_CENTRE | wx.ALL, 2)
         sizer_1.Add(self.cb3, 0, wx.ALIGN_CENTRE | wx.ALL, 2)
         sizer_1.Add(self.cb4, 0, wx.ALIGN_CENTRE | wx.ALL, 2)
         sizer_1.Add(self.cb5, 0, wx.ALIGN_CENTRE | wx.ALL, 2)
-        sizer_1.Add(self.cb6, 0, wx.ALIGN_CENTRE | wx.RIGHT, 0)
+        sizer_1.Add(self.cb6, 0, wx.ALIGN_CENTRE | wx.ALL, 2)
+        sizer_1.Add(self.cb7, 0, wx.ALIGN_CENTRE | wx.RIGHT, 0)
 
         self.linesafe = wx.StaticLine(self, -1, size=(-1, 20), style=wx.LI_VERTICAL)
         sizer_1.Add(self.linesafe, 0, wx.GROW | wx.RIGHT, 5)
@@ -335,6 +342,13 @@ class CV28Panel(wx.Panel):
             self.config -= CV_28_EN_MULTI_ADR
         #print(self.config)
 
+    def checkBoxDCCLN(self, event):
+        if event.IsChecked():
+            self.config += CV_28_EN_DCC_LN
+        else:
+            self.config -= CV_28_EN_DCC_LN
+        # print(self.config)
+
     def onSetAll(self, event):
         try:
             self.com.writeCV(28, self.config)
@@ -403,6 +417,10 @@ class CV28Panel(wx.Panel):
                     self.cb6.SetValue(True)
                 else:
                     self.cb6.SetValue(False)
+                if self.config & CV_28_EN_DCC_LN:
+                    self.cb7.SetValue(True)
+                else:
+                    self.cb7.SetValue(False)
 
     def SetMask(self, mask):
         if mask & CV_28_INV_DIR:
@@ -429,6 +447,10 @@ class CV28Panel(wx.Panel):
             self.cb6.Enable(True)
         else:
             self.cb6.Enable(False)
+        if mask & CV_28_EN_DCC_LN:
+            self.cb7.Enable(True)
+        else:
+            self.cb7.Enable(False)
 
 
 class MovePanel(wx.Panel):
@@ -529,9 +551,9 @@ class ServoPanel(wx.Panel):
             slidec_freq = 5
         self.sliderS = 5
         self.startval = self.sliderL
-        self.slider_1 = wx.Slider(self, value=self.sliderL, minValue=1, maxValue=100, size=(slider_dim, -1),
+        self.slider_1 = wx.Slider(self, value=self.sliderL, minValue=1, maxValue=250, size=(slider_dim, -1),
                                   style=wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS)
-        self.slider_2 = wx.Slider(self, value=self.sliderR, minValue=70, maxValue=200, size=(slider_dim, -1),
+        self.slider_2 = wx.Slider(self, value=self.sliderR, minValue=1, maxValue=250, size=(slider_dim, -1),
                                   style=wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS)
         self.slider_3 = wx.Slider(self, value=self.sliderC, minValue=slidec_min, maxValue=slidec_max, size=(slider_dim, -1),
                                   style=wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS)
@@ -923,7 +945,7 @@ class CoilPanel(wx.Panel):
 
         self.SetBackgroundColour(bcolor)
 
-        slider_dim = 180
+        slider_dim = 300
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer_0 = wx.BoxSizer(wx.HORIZONTAL)
@@ -1458,7 +1480,7 @@ class PLSetPanel(wx.Panel):
         sizer_1.Add(label_2, 0, wx.ALIGN_CENTRE_VERTICAL, 5)
         sizer_1.Add(self.texts, 0, wx.ALIGN_CENTRE_VERTICAL, 5)
 
-        label_2 = wx.StaticText(self, -1, "           Frequenza lampeggio led:   ", style=wx.TE_CENTER)
+        label_2 = wx.StaticText(self, -1, "          Frequenza lampeggio led:   ", style=wx.TE_CENTER)
         self.textl = wx.TextCtrl(self, -1, "", style=wx.TE_CENTER, size=(50, -1))
         sizer_1.Add(label_2, 0, wx.ALIGN_CENTRE_VERTICAL, 5)
         sizer_1.Add(self.textl, 0, wx.ALIGN_CENTRE_VERTICAL, 5)
@@ -1493,11 +1515,11 @@ class PLSetPanel(wx.Panel):
 
         try:
             cv32 = int(self.texts.GetValue())
-            if cv32 > 50 or cv32 < 10:
+            if cv32 > 100 or cv32 < 10:
                 raise ValueError
         except ValueError:
             ok = False
-            with wx.MessageDialog(None, 'Servo speed must be a numeric value (10..50)',
+            with wx.MessageDialog(None, 'Servo speed must be a numeric value (10..100)',
                                   'Value Error', wx.OK | wx.ICON_ERROR) as dlg:
                 dlg.ShowModal()
 
@@ -1603,7 +1625,7 @@ class PLSliderPanel(wx.Panel):
 
         self.SetBackgroundColour(bcolor)
 
-        slider_dim = 100
+        slider_dim = 80
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer_0 = wx.BoxSizer(wx.HORIZONTAL)
@@ -1617,27 +1639,33 @@ class PLSliderPanel(wx.Panel):
 
         sizer_1 = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.slider1 = 0
-        self.slider2 = 0
-        self.slider3 = 0
-        self.slider4 = 0
-        self.slider5 = 0
+        self.text_1 = wx.TextCtrl(self, -1, "", style=wx.TE_CENTER, size=(slider_dim, -1))
+        self.text_2 = wx.TextCtrl(self, -1, "", style=wx.TE_CENTER, size=(slider_dim, -1))
+        self.text_3 = wx.TextCtrl(self, -1, "", style=wx.TE_CENTER, size=(slider_dim, -1))
+        self.text_4 = wx.TextCtrl(self, -1, "", style=wx.TE_CENTER, size=(slider_dim, -1))
+        self.text_5 = wx.TextCtrl(self, -1, "", style=wx.TE_CENTER, size=(slider_dim, -1))
 
-        self.slider_1 = wx.Slider(self, value=self.slider1, minValue=0, maxValue=255, size=(slider_dim, -1),
-                                  style=wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS)
-        self.slider_2 = wx.Slider(self, value=self.slider2, minValue=0, maxValue=255, size=(slider_dim, -1),
-                                  style=wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS)
-        self.slider_3 = wx.Slider(self, value=self.slider3, minValue=0, maxValue=255, size=(slider_dim, -1),
-                                  style=wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS)
-        self.slider_4 = wx.Slider(self, value=self.slider4, minValue=0, maxValue=255, size=(slider_dim, -1),
-                                  style=wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS)
-        self.slider_5 = wx.Slider(self, value=self.slider5, minValue=0, maxValue=255, size=(slider_dim, -1),
-                                  style=wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS)
-        self.slider_1.SetTickFreq(20)
-        self.slider_2.SetTickFreq(20)
-        self.slider_3.SetTickFreq(20)
-        self.slider_4.SetTickFreq(20)
-        self.slider_5.SetTickFreq(20)
+        # self.slider1 = 0
+        # self.slider2 = 0
+        # self.slider3 = 0
+        # self.slider4 = 0
+        # self.slider5 = 0
+
+        # self.slider_1 = wx.Slider(self, value=self.slider1, minValue=0, maxValue=200, size=(slider_dim, -1),
+        #                           style=wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS)
+        # self.slider_2 = wx.Slider(self, value=self.slider2, minValue=0, maxValue=200, size=(slider_dim, -1),
+        #                           style=wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS)
+        # self.slider_3 = wx.Slider(self, value=self.slider3, minValue=0, maxValue=200, size=(slider_dim, -1),
+        #                           style=wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS)
+        # self.slider_4 = wx.Slider(self, value=self.slider4, minValue=0, maxValue=200, size=(slider_dim, -1),
+        #                           style=wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS)
+        # self.slider_5 = wx.Slider(self, value=self.slider5, minValue=0, maxValue=200, size=(slider_dim, -1),
+        #                           style=wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS)
+        # self.slider_1.SetTickFreq(20)
+        # self.slider_2.SetTickFreq(20)
+        # self.slider_3.SetTickFreq(20)
+        # self.slider_4.SetTickFreq(20)
+        # self.slider_5.SetTickFreq(20)
         self.button_open = wx.Button(self, -1, "SET")
         self.button_close = wx.Button(self, -1, "SET")
         self.button_actual = wx.Button(self, -1, "SET")
@@ -1646,18 +1674,23 @@ class PLSliderPanel(wx.Panel):
         self.buttonsetall = wx.Button(self, -1, "SET ALL")
         self.buttongetall = wx.Button(self, -1, "GET ALL")
 
-        grid = wx.FlexGridSizer(2, 5, 0, 20)
-        grid.Add(self.slider_1, 1, wx.ALIGN_CENTER, 0)
-        grid.Add(self.slider_2, 1, wx.ALIGN_CENTER, 0)
-        grid.Add(self.slider_3, 1, wx.ALIGN_CENTER, 0)
-        grid.Add(self.slider_4, 1, wx.ALIGN_CENTER, 0)
-        grid.Add(self.slider_5, 1, wx.ALIGN_CENTER, 0)
+        grid = wx.FlexGridSizer(2, 5, 10, 40)
+        # grid.Add(self.slider_1, 1, wx.ALIGN_CENTER, 0)
+        # grid.Add(self.slider_2, 1, wx.ALIGN_CENTER, 0)
+        # grid.Add(self.slider_3, 1, wx.ALIGN_CENTER, 0)
+        # grid.Add(self.slider_4, 1, wx.ALIGN_CENTER, 0)
+        # grid.Add(self.slider_5, 1, wx.ALIGN_CENTER, 0)
+        grid.Add(self.text_1, 1, wx.ALIGN_CENTER, 0)
+        grid.Add(self.text_2, 1, wx.ALIGN_CENTER, 0)
+        grid.Add(self.text_3, 1, wx.ALIGN_CENTER, 0)
+        grid.Add(self.text_4, 1, wx.ALIGN_CENTER, 0)
+        grid.Add(self.text_5, 1, wx.ALIGN_CENTER, 0)
         grid.Add(self.button_open, 1, wx.ALIGN_CENTER, 0)
         grid.Add(self.button_close, 1, wx.ALIGN_CENTER, 0)
         grid.Add(self.button_actual, 1, wx.ALIGN_CENTER, 0)
         grid.Add(self.button_ctime, 1, wx.ALIGN_CENTER, 0)
         grid.Add(self.button_otime, 1, wx.ALIGN_CENTER, 0)
-        sizer_1.Add(grid, 2, 0, 0)
+        sizer_1.Add(grid, 2, wx.ALL, 10)
 
         line = wx.StaticLine(self, -1, size=(-1, 20), style=wx.LI_VERTICAL)
         sizer_1.Add(line, 0, wx.GROW | wx.RIGHT | wx.LEFT, 0)
@@ -1678,11 +1711,16 @@ class PLSliderPanel(wx.Panel):
         line = wx.StaticLine(self, -1, size=(20, -1), style=wx.LI_HORIZONTAL)
         sizer.Add(line, 0, wx.GROW | wx.TOP, 1)
 
-        self.Bind(wx.EVT_SCROLL, self.onslider1, self.slider_1)
-        self.Bind(wx.EVT_SCROLL, self.onslider2, self.slider_2)
-        self.Bind(wx.EVT_SCROLL, self.onslider3, self.slider_3)
-        self.Bind(wx.EVT_SCROLL, self.onslider4, self.slider_4)
-        self.Bind(wx.EVT_SCROLL, self.onslider5, self.slider_5)
+        # self.Bind(wx.EVT_SCROLL, self.onslider1, self.slider_1)
+        # self.Bind(wx.EVT_SCROLL, self.onslider2, self.slider_2)
+        # self.Bind(wx.EVT_SCROLL, self.onslider3, self.slider_3)
+        # self.Bind(wx.EVT_SCROLL, self.onslider4, self.slider_4)
+        # self.Bind(wx.EVT_SCROLL, self.onslider5, self.slider_5)
+        self.Bind(wx.EVT_TEXT, self.ontext1, self.text_1)
+        self.Bind(wx.EVT_TEXT, self.ontext2, self.text_2)
+        self.Bind(wx.EVT_TEXT, self.ontext3, self.text_3)
+        self.Bind(wx.EVT_TEXT, self.ontext4, self.text_4)
+        self.Bind(wx.EVT_TEXT, self.ontext5, self.text_5)
         self.Bind(wx.EVT_BUTTON, self.onset1, self.button_open)
         self.Bind(wx.EVT_BUTTON, self.onset2, self.button_close)
         self.Bind(wx.EVT_BUTTON, self.onset3, self.button_actual)
@@ -1691,35 +1729,61 @@ class PLSliderPanel(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.onsetA, self.buttonsetall)
         self.Bind(wx.EVT_BUTTON, self.ongetA, self.buttongetall)
 
-        self.EnableAllButtons(True)
+        self.EnableAllButtons(False)
 
         self.SetSizer(sizer)
         sizer.Fit(self)
         self.Layout()
 
-    def onslider1(self, event):
-        self.slider1 = event.GetPosition()
+    # def onslider1(self, event):
+    #     self.slider1 = event.GetPosition()
+    #     self.button_open.Enable(True)
+    #
+    # def onslider2(self, event):
+    #     self.slider2 = event.GetPosition()
+    #     self.button_close.Enable(True)
+    #
+    # def onslider3(self, event):
+    #     self.slider3 = event.GetPosition()
+    #     self.button_actual.Enable(True)
+    #
+    # def onslider4(self, event):
+    #     self.slider4 = event.GetPosition()
+    #     self.button_ctime.Enable(True)
+    #
+    # def onslider5(self, event):
+    #     self.slider5 = event.GetPosition()
+    #     self.button_otime.Enable(True)
+
+    def ontext1(self, event):
         self.button_open.Enable(True)
 
-    def onslider2(self, event):
-        self.slider2 = event.GetPosition()
+    def ontext2(self, event):
         self.button_close.Enable(True)
 
-    def onslider3(self, event):
-        self.slider3 = event.GetPosition()
+    def ontext3(self, event):
         self.button_actual.Enable(True)
 
-    def onslider4(self, event):
-        self.slider4 = event.GetPosition()
+    def ontext4(self, event):
         self.button_ctime.Enable(True)
 
-    def onslider5(self, event):
-        self.slider5 = event.GetPosition()
+    def ontext5(self, event):
         self.button_otime.Enable(True)
 
     def onset1(self, event):
         try:
-            self.onset(1, self.slider1)
+            # self.onset(1, self.slider1)
+            try:
+                cv = int(self.text_1.GetValue())
+                if cv > 255 or cv < 1:
+                    raise ValueError
+            except ValueError:
+                with wx.MessageDialog(None, 'It must be a numeric value (1..255)',
+                                      'Value Error', wx.OK | wx.ICON_ERROR) as dlg:
+                    dlg.ShowModal()
+                return
+            else:
+                self.onset(1, cv)
         except serial.serialutil.SerialTimeoutException as e:
             serialerrormessage(self.parent, message=e, close=False)
         else:
@@ -1727,7 +1791,18 @@ class PLSliderPanel(wx.Panel):
 
     def onset2(self, event):
         try:
-            self.onset(2, self.slider2)
+            # self.onset(2, self.slider2)
+            try:
+                cv = int(self.text_2.GetValue())
+                if cv > 255 or cv < 1:
+                    raise ValueError
+            except ValueError:
+                with wx.MessageDialog(None, 'It must be a numeric value (1..255)',
+                                      'Value Error', wx.OK | wx.ICON_ERROR) as dlg:
+                    dlg.ShowModal()
+                return
+            else:
+                self.onset(2, cv)
         except serial.serialutil.SerialTimeoutException as e:
             serialerrormessage(self.parent, message=e, close=False)
         else:
@@ -1735,7 +1810,18 @@ class PLSliderPanel(wx.Panel):
 
     def onset3(self, event):
         try:
-            self.onset(3, self.slider3)
+            # self.onset(3, self.slider3)
+            try:
+                cv = int(self.text_3.GetValue())
+                if cv > 255 or cv < 1:
+                    raise ValueError
+            except ValueError:
+                with wx.MessageDialog(None, 'It must be a numeric value (1..255)',
+                                      'Value Error', wx.OK | wx.ICON_ERROR) as dlg:
+                    dlg.ShowModal()
+                return
+            else:
+                self.onset(3, cv)
         except serial.serialutil.SerialTimeoutException as e:
             serialerrormessage(self.parent, message=e, close=False)
         else:
@@ -1743,7 +1829,18 @@ class PLSliderPanel(wx.Panel):
 
     def onset4(self, event):
         try:
-            self.onset(4, self.slider4)
+            # self.onset(4, self.slider4)
+            try:
+                cv = int(self.text_4.GetValue())
+                if cv > 255 or cv < 1:
+                    raise ValueError
+            except ValueError:
+                with wx.MessageDialog(None, 'It must be a numeric value (1..255)',
+                                      'Value Error', wx.OK | wx.ICON_ERROR) as dlg:
+                    dlg.ShowModal()
+                return
+            else:
+                self.onset(4, cv)
         except serial.serialutil.SerialTimeoutException as e:
             serialerrormessage(self.parent, message=e, close=False)
         else:
@@ -1751,28 +1848,34 @@ class PLSliderPanel(wx.Panel):
 
     def onset5(self, event):
         try:
-            self.onset(5, self.slider5)
+            # self.onset(5, self.slider5)
+            try:
+                cv = int(self.text_5.GetValue())
+                if cv > 255 or cv < 1:
+                    raise ValueError
+            except ValueError:
+                with wx.MessageDialog(None, 'It must be a numeric value (1..255)',
+                                      'Value Error', wx.OK | wx.ICON_ERROR) as dlg:
+                    dlg.ShowModal()
+                return
+            else:
+                self.onset(5, cv)
         except serial.serialutil.SerialTimeoutException as e:
             serialerrormessage(self.parent, message=e, close=False)
         else:
             self.button_otime.Enable(False)
 
     def onsetA(self, event):
-        if event is None:
-            self.EnableAllButtons(False)
-            self.onset(6, -1)
-        else:
-            try:
-                self.onset(6, -1)
-            except serial.serialutil.SerialTimeoutException as e:
-                serialerrormessage(self.parent, message=e, close=False)
-            else:
-                self.EnableAllButtons(False)
+        self.onset1(None)
+        self.onset2(None)
+        self.onset3(None)
+        self.onset4(None)
+        self.onset5(None)
 
     def ongetA(self, event):
         if event is None:
-            self.EnableAllButtons(False)
             self.onget(6)
+            self.EnableAllButtons(False)
         else:
             try:
                 self.onget(6)
@@ -1799,45 +1902,55 @@ class PLSliderPanel(wx.Panel):
             self.com.writeCV(45 + self.id, val)
         elif t == 5:
             self.com.writeCV(49 + self.id, val)
-        else:
-            if self.button_open.IsEnabled():
-                self.com.writeCV(33 + (self.id * 3), self.slider1)
-            if self.button_close.IsEnabled():
-                self.com.writeCV(34 + (self.id * 3), self.slider2)
-            if self.button_actual.IsEnabled():
-                self.com.writeCV(35 + (self.id * 3), self.slider3)
-            if self.button_ctime.IsEnabled():
-                self.com.writeCV(45 + self.id, self.slider4)
-            if self.button_otime.IsEnabled():
-                self.com.writeCV(49 + self.id, self.slider5)
+        # else:
+        #     if self.button_open.IsEnabled():
+        #         self.com.writeCV(33 + (self.id * 3), self.text_1.GetValue())  # self.slider1)
+        #     if self.button_close.IsEnabled():
+        #         self.com.writeCV(34 + (self.id * 3), self.text_2.GetValue())  # self.slider2)
+        #     if self.button_actual.IsEnabled():
+        #         self.com.writeCV(35 + (self.id * 3), self.text_3.GetValue())  # self.slider3)
+        #     if self.button_ctime.IsEnabled():
+        #         self.com.writeCV(45 + self.id, self.text_4.GetValue())  # self.slider4)
+        #     if self.button_otime.IsEnabled():
+        #         self.com.writeCV(49 + self.id, self.text_5.GetValue())  # self.slider5)
 
     def onget(self, t):
         if t == 1:
-            self.slider1 = self.com.readCV(33 + (self.id * 3))
-            self.slider_1.SetValue(self.slider1)
+            # self.slider1 = self.com.readCV(33 + (self.id * 3))
+            # self.slider_1.SetValue(self.slider1)
+            self.text_1.SetValue(str(self.com.readCV(33 + (self.id * 3))))
         elif t == 2:
-            self.slider2 = self.com.readCV(34 + (self.id * 3))
-            self.slider_2.SetValue(self.slider2)
+            # self.slider2 = self.com.readCV(34 + (self.id * 3))
+            # self.slider_2.SetValue(self.slider2)
+            self.text_2.SetValue(str(self.com.readCV(34 + (self.id * 3))))
         elif t == 3:
-            self.slider3 = self.com.readCV(35 + (self.id * 3))
-            self.slider_3.SetValue(self.slider3)
+            # self.slider3 = self.com.readCV(35 + (self.id * 3))
+            # self.slider_3.SetValue(self.slider3)
+            self.text_3.SetValue(str(self.com.readCV(35 + (self.id * 3))))
         elif t == 4:
-            self.slider4 = self.com.readCV(45 + self.id)
-            self.slider_4.SetValue(self.slider4)
+            # self.slider4 = self.com.readCV(45 + self.id)
+            # self.slider_4.SetValue(self.slider4)
+            self.text_4.SetValue(str(self.com.readCV(45 + self.id)))
         elif t == 5:
-            self.slider5 = self.com.readCV(49 + self.id)
-            self.slider_5.SetValue(self.slider5)
+            # self.slider5 = self.com.readCV(49 + self.id)
+            # self.slider_5.SetValue(self.slider5)
+            self.text_5.SetValue(str(self.com.readCV(49 + self.id)))
         else:
-            self.slider1 = self.com.readCV(33 + (self.id * 3))
-            self.slider_1.SetValue(self.slider1)
-            self.slider2 = self.com.readCV(34 + (self.id * 3))
-            self.slider_2.SetValue(self.slider2)
-            self.slider3 = self.com.readCV(35 + (self.id * 3))
-            self.slider_3.SetValue(self.slider3)
-            self.slider4 = self.com.readCV(45 + self.id)
-            self.slider_4.SetValue(self.slider4)
-            self.slider5 = self.com.readCV(49 + self.id)
-            self.slider_5.SetValue(self.slider5)
+            # self.slider1 = self.com.readCV(33 + (self.id * 3))
+            # self.slider_1.SetValue(self.slider1)
+            # self.slider2 = self.com.readCV(34 + (self.id * 3))
+            # self.slider_2.SetValue(self.slider2)
+            # self.slider3 = self.com.readCV(35 + (self.id * 3))
+            # self.slider_3.SetValue(self.slider3)
+            # self.slider4 = self.com.readCV(45 + self.id)
+            # self.slider_4.SetValue(self.slider4)
+            # self.slider5 = self.com.readCV(49 + self.id)
+            # self.slider_5.SetValue(self.slider5)
+            self.text_1.SetValue(str(self.com.readCV(33 + (self.id * 3))))
+            self.text_2.SetValue(str(self.com.readCV(34 + (self.id * 3))))
+            self.text_3.SetValue(str(self.com.readCV(35 + (self.id * 3))))
+            self.text_4.SetValue(str(self.com.readCV(45 + self.id)))
+            self.text_5.SetValue(str(self.com.readCV(49 + self.id)))
 
 
 class PLConfPanel(wx.Panel):

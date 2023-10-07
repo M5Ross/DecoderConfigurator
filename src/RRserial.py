@@ -125,7 +125,13 @@ class SerialCom:
         return self.transaction(code + self.formatStr(cv) + self.formatStr(value))
 
     def GetDeviceID(self):
-        return self.__write__()
+        values = []
+        while True:
+            values.append(self.__write__())
+            if len(values) > 2:
+                if values[-1] == values[-2] == values[-3]:
+                    break
+        return values[-1]
 
     def GetHWversion(self):
         return self.__write__(code="01")
