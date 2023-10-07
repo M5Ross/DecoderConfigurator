@@ -1,2 +1,2 @@
-\path\to\avrdude.exe
-\path\to\avrdude.conf
+../avrdude/avrdude.exe
+../avrdude/avrdude.conf
