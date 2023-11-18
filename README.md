@@ -9,4 +9,5 @@ Fallowing decoders are supported:
 - [AccDec_8Servos_LN_USB](https://github.com/M5Ross/AccDec_8Servos_LN_USB)
 - [AccDec_8Servos_8Relais](https://github.com/M5Ross/AccDec_8Servos_8Relais)
 - [AccDec_8Coil](https://github.com/M5Ross/AccDec_8Coil)
+- [AccDec_SoundLevelCrossing](https://github.com/M5Ross/AccDec_SoundLevelCrossing)
 - and mode ...
