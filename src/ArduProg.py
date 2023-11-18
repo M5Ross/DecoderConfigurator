@@ -246,7 +246,7 @@ class UpgradeFrame(wx.Frame):
         i = 0
         for n, (portname, desc, hwid) in enumerate(sorted(serial.tools.list_ports.comports())):
             i += 1
-            self.choice_port.Append(u'{}'.format(desc))
+            self.choice_port.Append(u'{}'.format(portname + ' - ' + desc))
             self.ports.append(portname)
             if self.serial.name == portname:
                 preferred_index = n

@@ -38,7 +38,7 @@ class SerialCom:
         try:
             rx = self.rawrx.decode('utf-8')
         except UnicodeDecodeError as e:
-            print("RRserial error: %s", e)
+            print("RRserial error: ", e)
             self.rawrx = self.serial.read(self.serial.in_waiting)
             raise serial.serialutil.SerialTimeoutException("Serial communication error")
 
@@ -127,7 +127,12 @@ class SerialCom:
     def GetDeviceID(self):
         values = []
         while True:
-            values.append(self.__write__())
+            try:
+                self.FlushInputBuffer()
+                val = self.__write__()
+            except serial.serialutil.SerialTimeoutException:
+                val = self.__write__()
+            values.append(val)
             if len(values) > 2:
                 if values[-1] == values[-2] == values[-3]:
                     break
@@ -156,3 +161,6 @@ class SerialCom:
 
     def GetSingleInvStart(self):
         return self.__write__(code="33")
+
+    def FlushInputBuffer(self):
+        return self.serial.read(self.serial.in_waiting)

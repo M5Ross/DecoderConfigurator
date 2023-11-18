@@ -13,6 +13,8 @@ import RRserial
 import ArduProg
 from time import sleep
 
+SOFTWARE_VERSION = "1.8"
+
 ID_UPGRADE = 0
 ID_REFRESH = 1
 ID_OPEN = 2
@@ -213,8 +215,8 @@ class MainFrame(wx.Frame):
         self.label_7 = wx.StaticText(self.panel, -1, "                      Posizione Aperto"
                                                      "         Posizione Chiuso"
                                                      "        Posizione Attuale"
-                                                     "         Ritardo Apertura"
-                                                     "         Ritardo Chiusura")
+                                                     "         Ritardo Chiusura"
+                                                     "         Ritardo Apertura")
         font = wx.Font(10, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
         self.label_1.SetFont(font)
         self.label_2.SetFont(font)
@@ -683,7 +685,7 @@ class MainFrame(wx.Frame):
             self.serial.close()
             sleep(0.5)
         try:
-            if self.devsel == self.dev.Device_AccDec_8Servo_LN_USB:
+            if self.devsel == self.dev.Device_AccDec_8Servo_LN_USB or self.devsel == self.dev.Device_AccDec_PL_Sound:
                 sleep(2.0)
             self.serial.open()
         except serial.SerialException as e:
@@ -750,7 +752,7 @@ class MainFrame(wx.Frame):
         # First we create and fill the info object
         info = wx.adv.AboutDialogInfo()
         info.Name = "DecoderConfigurator\n"
-        info.Version = "1.7"
+        info.Version = SOFTWARE_VERSION
         info.Copyright = "(c) 2019-2023 M.Ross"
 
         info.Description = wordwrap(

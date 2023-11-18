@@ -1465,6 +1465,7 @@ class PLSetPanel(wx.Panel):
     def __init__(self, mainparent, parent, bcolor, serial):
         self.serial = serial
         self.parent = parent
+        self.bcolor = bcolor
         wx.Panel.__init__(self, mainparent)
 
         self.com = SerialCom(self.serial)
@@ -1472,8 +1473,12 @@ class PLSetPanel(wx.Panel):
         self.SetBackgroundColour(bcolor)
 
         sizer_1 = wx.BoxSizer(wx.HORIZONTAL)
-
         sizer_2 = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_3 = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_5 = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_4 = wx.BoxSizer(wx.VERTICAL)
+        sizer_6 = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_7 = wx.BoxSizer(wx.VERTICAL)
 
         label_2 = wx.StaticText(self, -1, " Velocità barriere:   ", style=wx.TE_CENTER)
         self.texts = wx.TextCtrl(self, -1, "", style=wx.TE_CENTER, size=(50, -1))
@@ -1497,14 +1502,61 @@ class PLSetPanel(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.onGetInd, self.buttongetind)
         sizer_2.Add(self.buttongetind, 0, wx.ALIGN_CENTRE_VERTICAL | wx.LEFT, 5)
         sizer_2.Add(self.buttonsetind, 0, wx.ALIGN_CENTRE_VERTICAL, 0)
-
-        #line = wx.StaticLine(self, -1, style=wx.LI_VERTICAL)
-        #sizer_2.Add(line, 0, wx.GROW | wx.LEFT | wx.RIGHT, 2)
-
         sizer_1.Add(sizer_2, 0, wx.ALL, 2)
 
-        self.SetSizer(sizer_1)
-        sizer_1.Fit(self)
+        sizer_4.Add(sizer_1, 0, wx.ALL, 2)
+        line = wx.StaticLine(self, -1, style=wx.LI_HORIZONTAL)
+        sizer_4.Add(line, 0, wx.GROW | wx.TOP | wx.BOTTOM, 2)
+
+        label_2 = wx.StaticText(self, -1, "   Ritardo off suono [ms] :   ", style=wx.TE_CENTER)
+        self.textos = wx.TextCtrl(self, -1, "", style=wx.TE_CENTER, size=(50, -1))
+        sizer_3.Add(label_2, 0, wx.ALIGN_CENTRE_VERTICAL, 5)
+        sizer_3.Add(self.textos, 0, wx.ALIGN_CENTRE_VERTICAL, 5)
+
+        label_2 = wx.StaticText(self, -1, "   Timeout auto-open [s] :    ", style=wx.TE_CENTER)
+        self.textoo = wx.TextCtrl(self, -1, "", style=wx.TE_CENTER, size=(50, -1))
+        sizer_3.Add(label_2, 0, wx.ALIGN_CENTRE_VERTICAL, 5)
+        sizer_3.Add(self.textoo, 0, wx.ALIGN_CENTRE_VERTICAL, 5)
+
+        label_2 = wx.StaticText(self, -1, "    Ciclo input [ms] :        ", style=wx.TE_CENTER)
+        self.textci = wx.TextCtrl(self, -1, "", style=wx.TE_CENTER, size=(50, -1))
+        sizer_3.Add(label_2, 0, wx.ALIGN_CENTRE_VERTICAL, 5)
+        sizer_3.Add(self.textci, 0, wx.ALIGN_CENTRE_VERTICAL, 5)
+
+        sizer_7.Add(sizer_3, 0, wx.ALL, 2)
+        line = wx.StaticLine(self, -1, style=wx.LI_HORIZONTAL)
+        sizer_7.Add(line, 0, wx.GROW | wx.TOP | wx.BOTTOM, 2)
+
+        label_2 = wx.StaticText(self, -1, "   Low Threshold [%] :          ", style=wx.TE_CENTER)
+        self.textlt = wx.TextCtrl(self, -1, "", style=wx.TE_CENTER, size=(50, -1))
+        sizer_5.Add(label_2, 0, wx.ALIGN_CENTRE_VERTICAL, 5)
+        sizer_5.Add(self.textlt, 0, wx.ALIGN_CENTRE_VERTICAL, 5)
+
+        label_2 = wx.StaticText(self, -1, "   High Threshold [%] :          ", style=wx.TE_CENTER)
+        self.textht = wx.TextCtrl(self, -1, "", style=wx.TE_CENTER, size=(50, -1))
+        sizer_5.Add(label_2, 0, wx.ALIGN_CENTRE_VERTICAL, 5)
+        sizer_5.Add(self.textht, 0, wx.ALIGN_CENTRE_VERTICAL, 5)
+
+        label_2 = wx.StaticText(self, -1, "   Release count [n°] :     ", style=wx.TE_CENTER)
+        self.textrc = wx.TextCtrl(self, -1, "", style=wx.TE_CENTER, size=(50, -1))
+        sizer_5.Add(label_2, 0, wx.ALIGN_CENTRE_VERTICAL, 5)
+        sizer_5.Add(self.textrc, 0, wx.ALIGN_CENTRE_VERTICAL, 5)
+
+        sizer_7.Add(sizer_5, 0, wx.ALL, 2)
+
+        sizer_6.Add(sizer_7, 0, wx.ALL, 2)
+        line = wx.StaticLine(self, -1, style=wx.LI_VERTICAL)
+        sizer_6.Add(line, 0, wx.GROW | wx.LEFT | wx.RIGHT, 2)
+
+        self.buttoninmap = wx.Button(self, -1, "INPUT MAPPING", size=(120, 40))  # , size=wx.DefaultSize)
+        self.Bind(wx.EVT_BUTTON, self.onOpenMapping, self.buttoninmap)
+        sizer_6.Add(self.buttoninmap, 0, wx.ALIGN_CENTRE_VERTICAL | wx.ALL, 5)
+        sizer_6.Add(20, -1)
+
+        sizer_4.Add(sizer_6, 0, wx.ALL, 2)
+
+        self.SetSizer(sizer_4)
+        sizer_4.Fit(self)
         self.Layout()
 
     def onSetInd(self, event):
@@ -1512,6 +1564,12 @@ class PLSetPanel(wx.Panel):
         cv32 = 0
         cv54 = 0
         cv56 = 0
+        cv58 = 0
+        cv59 = 0
+        cv60 = 0
+        cv61 = 0
+        cv62 = 0
+        cv63 = 0
 
         try:
             cv32 = int(self.texts.GetValue())
@@ -1543,11 +1601,77 @@ class PLSetPanel(wx.Panel):
                                   'Value Error', wx.OK | wx.ICON_ERROR) as dlg:
                 dlg.ShowModal()
 
+        try:
+            cv58 = int(int(self.textos.GetValue()) / 50)
+            if cv58 > 255 or cv58 < 1:
+                raise ValueError
+        except ValueError:
+            ok = False
+            with wx.MessageDialog(None, 'Volume must be a numeric value (1..12750)',
+                                  'Value Error', wx.OK | wx.ICON_ERROR) as dlg:
+                dlg.ShowModal()
+
+        try:
+            cv59 = int(self.textoo.GetValue())
+            if cv59 > 255 or cv59 < 1:
+                raise ValueError
+        except ValueError:
+            ok = False
+            with wx.MessageDialog(None, 'Volume must be a numeric value (1..255)',
+                                  'Value Error', wx.OK | wx.ICON_ERROR) as dlg:
+                dlg.ShowModal()
+
+        try:
+            cv60 = int(int(self.textci.GetValue()) / 10)
+            if cv60 > 255 or cv60 < 1:
+                raise ValueError
+        except ValueError:
+            ok = False
+            with wx.MessageDialog(None, 'Volume must be a numeric value (1..2550)',
+                                  'Value Error', wx.OK | wx.ICON_ERROR) as dlg:
+                dlg.ShowModal()
+
+        try:
+            cv61 = int(self.textlt.GetValue())
+            if cv61 > 255 or cv61 < 1:
+                raise ValueError
+        except ValueError:
+            ok = False
+            with wx.MessageDialog(None, 'Volume must be a numeric value (1..255)',
+                                  'Value Error', wx.OK | wx.ICON_ERROR) as dlg:
+                dlg.ShowModal()
+
+        try:
+            cv62 = int(self.textht.GetValue())
+            if cv62 > 255 or cv62 < 1:
+                raise ValueError
+        except ValueError:
+            ok = False
+            with wx.MessageDialog(None, 'Volume must be a numeric value (1..255)',
+                                  'Value Error', wx.OK | wx.ICON_ERROR) as dlg:
+                dlg.ShowModal()
+
+        try:
+            cv63 = int(self.textrc.GetValue())
+            if cv63 > 255 or cv63 < 1:
+                raise ValueError
+        except ValueError:
+            ok = False
+            with wx.MessageDialog(None, 'Volume must be a numeric value (1..255)',
+                                  'Value Error', wx.OK | wx.ICON_ERROR) as dlg:
+                dlg.ShowModal()
+
         if ok:
             try:
                 self.com.writeCV(32, cv32)
                 self.com.writeCV(54, cv54)
                 self.com.writeCV(56, cv56)
+                self.com.writeCV(58, cv58)
+                self.com.writeCV(59, cv59)
+                self.com.writeCV(60, cv60)
+                self.com.writeCV(61, cv61)
+                self.com.writeCV(62, cv62)
+                self.com.writeCV(63, cv63)
             except serial.serialutil.SerialTimeoutException as e:
                 serialerrormessage(self.parent, message=e, close=False)
 
@@ -1556,8 +1680,91 @@ class PLSetPanel(wx.Panel):
             self.texts.SetValue(str(self.com.readCV(32)))
             self.textl.SetValue(str(self.com.readCV(54)))
             self.textv.SetValue(str(self.com.readCV(56)))
+            self.textos.SetValue(str(int(int(self.com.readCV(58)) * 50)))
+            self.textoo.SetValue(str(self.com.readCV(59)))
+            self.textci.SetValue(str(int(int(self.com.readCV(60)) * 10)))
+            self.textlt.SetValue(str(self.com.readCV(61)))
+            self.textht.SetValue(str(self.com.readCV(62)))
+            self.textrc.SetValue(str(self.com.readCV(63)))
         except serial.serialutil.SerialTimeoutException as e:
             serialerrormessage(self.parent, message=e, close=False)
+
+    def onOpenMapping(self, event):
+        with InputMappingDialog(self, self.parent, self.bcolor, self.com) as mapping:
+            mapping.getAll()
+            mapping.CenterOnParent()
+            mapping.ShowModal()
+
+
+class InputMappingDialog(wx.Dialog):
+    def __init__(self, mainparent, parent, bcolor, com):
+        self.com = com
+        self.parent = parent
+        wx.Dialog.__init__(self, mainparent, -1, "INPUT MAPPING")
+
+        labels1 = "           S      S      S      S   |   R      R      R      R"
+        labels2 = "         B4    B3    B2    B1     B4    B3    B2    B1"
+        labels3 = ["L1  ", "L2  ", "L3  ", "L4  ", "R1  ", "R2  ", "R3  ", "R4  "]
+
+        pnl = wx.Panel(self)
+        vbox = wx.BoxSizer(wx.VERTICAL)
+
+        sizer_1 = wx.BoxSizer(wx.VERTICAL)
+        self.cb = []
+        sizer = []
+        sizer_1.Add(wx.StaticText(pnl, -1, labels1, style=wx.TE_CENTER), 0, wx.ALL, 5)
+        sizer_1.Add(wx.StaticText(pnl, -1, labels2, style=wx.TE_CENTER), 0, wx.ALL, 5)
+        for cb in range(8):
+            a = []
+            sizer.append(wx.BoxSizer(wx.HORIZONTAL))
+            txt = wx.StaticText(pnl, -1, labels3[cb], style=wx.TE_CENTER)
+            sizer[-1].Add(txt, 0, wx.ALL, 5)
+            for bit in range(8):
+                c = wx.CheckBox(pnl, -1, "")
+                sizer[-1].Add(c, 0, wx.ALL, 5)
+                a.append(c)
+            sizer_1.Add(sizer[-1], 0, wx.ALIGN_CENTER_HORIZONTAL, 1)
+            self.cb.append(a)
+
+        pnl.SetBackgroundColour(bcolor)
+        pnl.SetSizer(sizer_1)
+
+        hbox2 = wx.BoxSizer(wx.HORIZONTAL)
+        okButton = wx.Button(self, label='SET')
+        closeButton = wx.Button(self, label='CANCEL')
+        hbox2.Add(okButton)
+        hbox2.Add(closeButton, flag=wx.LEFT, border=5)
+
+        vbox.Add(pnl, proportion=1, flag=wx.ALL | wx.EXPAND, border=5)
+        vbox.Add(hbox2, flag=wx.ALIGN_CENTER | wx.TOP | wx.BOTTOM, border=10)
+
+        self.SetSizer(vbox)
+        vbox.Fit(self)
+        self.Layout()
+
+        okButton.Bind(wx.EVT_BUTTON, self.OnOk)
+        closeButton.Bind(wx.EVT_BUTTON, self.OnCancel)
+
+    def OnCancel(self, event):
+        self.Destroy()
+
+    def OnOk(self, event):
+        self.setAll()
+        self.Destroy()
+
+    def getAll(self):
+        for i in range(8):
+            val = self.com.readCV(70 + i)
+            for j in range(8):
+                self.cb[i][j].SetValue(val & (1 << (7-j)))
+
+    def setAll(self):
+        for i in range(8):
+            val = 0
+            for j in range(8):
+                if self.cb[i][j].GetValue():
+                    val |= 1 << (7-j)
+            self.com.writeCV(70 + i, val)
 
 
 class MultichoicePanel(wx.Panel):
